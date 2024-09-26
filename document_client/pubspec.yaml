@@ -10,7 +10,10 @@ environment:
   sdk: "^3.0.0"
 
 dependencies:
-  aws_dynamodb_api: ^2.0.0
+  aws_dynamodb_api:
+    git:
+      url: https://github.com/brighttank/aws_client.git
+      path: generated/aws_dynamodb_api
   shared_aws_api:
     git:
       url: https://github.com/brighttank/aws_client.git
